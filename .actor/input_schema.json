@@ -1,0 +1,13 @@
+{
+    "title": "CheerioCrawler Template",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "query": {
+            "title": "Query",
+            "type": "string",
+            "description": "Query for torrent search",
+            "editor": "textfield"
+        }
+    }
+}
