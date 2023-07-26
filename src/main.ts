@@ -30,6 +30,13 @@ const requests: RequestOptions<UserData>[] = [
             baseUrl: 'https://nyaa.si',
         },
     },
+    {
+        url: `https://www.limetorrents.to/search/all/${query}/seeds/1/`,
+        label: Labels.LIME,
+        userData: {
+            baseUrl: 'https://www.limetorrents.to',
+        },
+    },
 ];
 
 const proxyConfiguration = await Actor.createProxyConfiguration();

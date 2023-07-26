@@ -10,6 +10,8 @@ export type UserData = {
 export const enum Labels {
     GLO = 'GLO',
     TPB = 'TPB',
+    LIME = 'LIME',
+    LIME_ITEM = 'LIME_ITEM',
     NYAA = 'NYAA',
 }
 

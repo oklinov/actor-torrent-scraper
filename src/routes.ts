@@ -97,3 +97,55 @@ router.addHandler<UserData>(Labels.NYAA, async ({ request, $, log }) => {
         });
     }
 });
+
+router.addHandler<UserData>(Labels.LIME, async ({ crawler, request, $, log }) => {
+    const { userData: { baseUrl }, loadedUrl } = request;
+    const rowEls = $('#content table.table2 tr');
+    const torrents: TorrentItem[] = [];
+    for (const [index, rowEl] of rowEls.toArray().entries()) {
+        const titleCellEls = $(rowEl).find('td:nth-child(1) a');
+        if (titleCellEls.length !== 2) {
+            log.warning(`Expected exactly 2 anchor tags inside title cell, skipping item at index ${index}`);
+            continue;
+        }
+        const title = $(titleCellEls[1]).text().trim();
+        const webUrlHref = $(titleCellEls[1]).attr('href');
+        const webUrl = webUrlHref && new URL(webUrlHref, baseUrl).toString();
+        const downloadUrl = $(titleCellEls[0]).attr('href');
+        const size = $(rowEl).find('td:nth-child(3)').text().trim();
+        const seeds = $(rowEl).find('td:nth-child(4)').text().trim();
+        const leeches = $(rowEl).find('td:nth-child(5)').text().trim();
+        torrents.push({
+            title,
+            webUrl,
+            downloadUrl,
+            size,
+            seeds,
+            leeches,
+            website: baseUrl,
+        });
+    }
+    log.info(`Found ${torrents.length} torrents on ${loadedUrl}`);
+    crawler.addRequests(torrents.map((torrent) => ({
+        url: torrent.webUrl,
+        label: Labels.LIME_ITEM,
+        userData: {
+            torrent,
+            baseUrl,
+        },
+    })));
+});
+
+router.addHandler<UserData>(Labels.LIME_ITEM, async ({ request, $, log }) => {
+    const { userData: { torrent }, loadedUrl } = request;
+    const magnetUrl = $('.torrentinfo a[href^="magnet:"]').attr('href');
+    if (!magnetUrl) {
+        log.warning(`Could not find magnet url at ${loadedUrl}`);
+        return;
+    }
+    log.info(`Found magnet url of ${torrent?.title} at ${loadedUrl}`);
+    Dataset.pushData({
+        ...torrent,
+        magnetUrl,
+    });
+});
