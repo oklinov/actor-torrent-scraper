@@ -1,5 +1,5 @@
 import { Dataset, createCheerioRouter } from 'crawlee';
-import { Labels, TorrentItem, UserData } from './types.js';
+import { Labels, RowParser, TorrentItem, UserData } from './types.js';
 
 export const router = createCheerioRouter();
 
@@ -38,32 +38,87 @@ router.addHandler<UserData>(Labels.GLO, async ({ request, $, log }) => {
 
 router.addHandler<UserData>(Labels.TPB, async ({ request, $, log }) => {
     const { userData: { baseUrl }, loadedUrl } = request;
-    const rowEls = $('table tr');
-    log.info(`Found ${rowEls.length} torrents on ${loadedUrl}`);
-    for (const rowEl of rowEls) {
-        const titleEl = $(rowEl).find('td:nth-child(2) a');
-        const title = titleEl.text().trim();
-        if (!title) {
-            log.warning('Missing title, skipping');
-            continue;
-        }
-        const webUrl = titleEl.attr('href');
-        const magnetUrl = $(rowEl).find('td:nth-child(4) a[href^="magnet"]').attr('href');
-        const size = $(rowEl).find('td:nth-child(5)').text().trim();
-        const seeds = $(rowEl).find('td:nth-child(6)').text().trim();
-        const leeches = $(rowEl).find('td:nth-child(7)').text().trim();
-        const uploader = $(rowEl).find('td:nth-child(8)').text().trim();
-        Dataset.pushData<TorrentItem>({
-            title,
-            webUrl,
-            magnetUrl,
-            seeds,
-            leeches,
-            uploader,
-            size,
-            website: baseUrl,
-        });
+    const rowEls = $('table tr').toArray();
+    const numOfCols = $(rowEls[0]).find('> th, > td').length;
+    let rowParser: RowParser;
+
+    // there are two variants of the tables, one with 4 columns and the other with 8
+    // I could not determine how to request only one so I count with both variants
+    switch (numOfCols) {
+        case 4:
+            rowParser = (rowEl, index) => {
+                const mainCellEl = $(rowEl).find('td:nth-child(2)');
+                const titleEl = $(mainCellEl).find('.detName a');
+                const title = titleEl.text().trim();
+                if (!title) {
+                    log.warning(`Missing title, skipping ${index}. row`);
+                }
+                const webUrl = titleEl.attr('href');
+                const magnetUrl = $(mainCellEl).find('a[href^="magnet"]').attr('href');
+                const descStr = $(mainCellEl).find('font.detDesc').text().trim();
+                const descMatch = descStr.match(/^Uploaded\s*.*?,\s*Size (.*?),\s*ULed by\s*(.*?)$/);
+                let size: string | undefined;
+                let uploader: string | undefined;
+                if (descMatch && descMatch.length === 3) {
+                    size = descMatch[1];
+                    uploader = descMatch[2];
+                } else {
+                    log.warning(`Unable to extract size and uploader from description: ${descStr}`);
+                }
+                const seeds = $(rowEl).find('td:nth-child(3)').text().trim();
+                const leeches = $(rowEl).find('td:nth-child(4)').text().trim();
+                return {
+                    title,
+                    webUrl,
+                    magnetUrl,
+                    size,
+                    seeds,
+                    leeches,
+                    uploader,
+                    website: baseUrl,
+                };
+            };
+            break;
+        case 8:
+            rowParser = (rowEl, index) => {
+                const titleEl = $(rowEl).find('td:nth-child(2) a');
+                const title = titleEl.text().trim();
+                if (!title) {
+                    log.warning(`Missing title, skipping ${index}. row`);
+                    return null;
+                }
+                const webUrl = titleEl.attr('href');
+                const magnetUrl = $(rowEl).find('td:nth-child(4) a[href^="magnet"]').attr('href');
+                const size = $(rowEl).find('td:nth-child(5)').text().trim();
+                const seeds = $(rowEl).find('td:nth-child(6)').text().trim();
+                const leeches = $(rowEl).find('td:nth-child(7)').text().trim();
+                const uploader = $(rowEl).find('td:nth-child(8)').text().trim();
+                return {
+                    title,
+                    webUrl,
+                    magnetUrl,
+                    size,
+                    seeds,
+                    leeches,
+                    uploader,
+                    website: baseUrl,
+                };
+            };
+            break;
+        default:
+            log.error(`Unexpected number of table columns: ${numOfCols}, aborting`);
+            return;
     }
+    log.info(`Using ${numOfCols}-column table parser`);
+    const torrents: TorrentItem[] = [];
+    for (const [index, rowEl] of rowEls.entries()) {
+        const torrent = rowParser(rowEl, index);
+        if (torrent) {
+            torrents.push(torrent);
+        }
+    }
+    log.info(`Found ${torrents.length} torrents on ${loadedUrl}`);
+    Dataset.pushData(torrents);
 });
 
 router.addHandler<UserData>(Labels.NYAA, async ({ request, $, log }) => {

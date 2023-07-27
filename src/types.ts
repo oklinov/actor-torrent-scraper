@@ -1,3 +1,5 @@
+import { Element } from 'cheerio';
+
 export type Input = {
     query: string
 }
@@ -27,3 +29,5 @@ export type TorrentItem = {
     downloadUrl?: string
     website: string
 }
+
+export type RowParser = (rowEl: Element, index: number) => TorrentItem | null;

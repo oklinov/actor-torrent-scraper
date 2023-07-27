@@ -20,7 +20,7 @@ const requests: RequestOptions<UserData>[] = [
         url: `https://tpb.party/search/${query}/1/99/0`,
         label: Labels.TPB,
         userData: {
-            baseUrl: 'https://ypb.party',
+            baseUrl: 'https://tpb.party',
         },
     },
     {
