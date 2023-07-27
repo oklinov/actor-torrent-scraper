@@ -24,7 +24,7 @@ router.addHandler<UserData>(Labels.GLO, async ({ request, $, log }) => {
         const leeches = $(rowEl).find('td:nth-child(7)').text().trim();
         const uploader = $(rowEl).find('td:nth-child(8) a font').text().trim();
 
-        Dataset.pushData<TorrentItem>({
+        await Dataset.pushData<TorrentItem>({
             title,
             webUrl,
             downloadUrl,
@@ -120,7 +120,7 @@ router.addHandler<UserData>(Labels.TPB, async ({ request, $, log }) => {
         }
     }
     log.info(`Found ${torrents.length} torrents on ${loadedUrl}`);
-    Dataset.pushData(torrents);
+    await Dataset.pushData(torrents);
 });
 
 router.addHandler<UserData>(Labels.NYAA, async ({ request, $, log }) => {
@@ -142,7 +142,7 @@ router.addHandler<UserData>(Labels.NYAA, async ({ request, $, log }) => {
         const size = $(rowEl).find('td:nth-child(4)').text().trim();
         const seeds = $(rowEl).find('td:nth-child(6)').text().trim();
         const leeches = $(rowEl).find('td:nth-child(7)').text().trim();
-        Dataset.pushData<TorrentItem>({
+        await Dataset.pushData<TorrentItem>({
             title,
             webUrl,
             magnetUrl,
@@ -183,7 +183,7 @@ router.addHandler<UserData>(Labels.LIME, async ({ crawler, request, $, log }) =>
         });
     }
     log.info(`Found ${torrents.length} torrents on ${loadedUrl}`);
-    crawler.addRequests(torrents.map((torrent) => ({
+    await crawler.addRequests(torrents.map((torrent) => ({
         url: torrent.webUrl,
         label: Labels.LIME_ITEM,
         userData: {
@@ -201,7 +201,7 @@ router.addHandler<UserData>(Labels.LIME_ITEM, async ({ request, $, log }) => {
         return;
     }
     log.info(`Found magnet url of ${torrent?.title} at ${loadedUrl}`);
-    Dataset.pushData({
+    await Dataset.pushData({
         ...torrent,
         magnetUrl,
     });
