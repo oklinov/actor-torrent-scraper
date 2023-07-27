@@ -14,10 +14,12 @@ router.addHandler<UserData>(Labels.GLO, async ({ request, $, log }) => {
             log.warning('Missing title, skipping');
             continue;
         }
-        const webUrl = titleEl.attr('href');
-        const downloadUrl = $(rowEl).find('td:nth-child(3) a').attr('href');
+        const webUrlHref = titleEl.attr('href');
+        const webUrl = webUrlHref && new URL(webUrlHref, baseUrl).toString();
+        const downloadUrlHref = $(rowEl).find('td:nth-child(3) a').attr('href');
+        const downloadUrl = downloadUrlHref && new URL(downloadUrlHref, baseUrl).toString();
         const magnetUrl = $(rowEl).find('td:nth-child(4) a').attr('href');
-        const size = $(rowEl).find('td:nth-child(5) a').text().trim();
+        const size = $(rowEl).find('td:nth-child(5)').text().trim();
         const seeds = $(rowEl).find('td:nth-child(6)').text().trim();
         const leeches = $(rowEl).find('td:nth-child(7)').text().trim();
         const uploader = $(rowEl).find('td:nth-child(8) a font').text().trim();
