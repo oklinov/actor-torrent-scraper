@@ -1,12 +1,15 @@
 {
 	"actorSpecification": 1,
 	"name": "torrent-scraper",
-	"title": "Project Cheerio Crawler Typescript",
-	"description": "Crawlee and Cheerio project in typescript.",
+	"title": "Torrent Scraper",
+	"description": "Collect torrents from multiple torrent sites like gtdb.to or tpb.party based on your query.",
 	"version": "0.0",
 	"meta": {
 		"templateId": "ts-crawlee-cheerio"
 	},
 	"input": "./input_schema.json",
+    "storages": {
+        "dataset": "./dataset_schema.json"
+    },
 	"dockerfile": "./Dockerfile"
 }

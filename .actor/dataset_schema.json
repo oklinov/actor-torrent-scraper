@@ -1,0 +1,60 @@
+{
+    "actorSpecification": 1,
+    "fields": {},
+    "views": {
+        "torrents": {
+            "title": "Torrents",
+            "transformation": {
+                "fields": [
+                    "title",
+                    "website",
+                    "seeds",
+                    "leeches",
+                    "size",
+                    "magnetUrl",
+                    "downloadUrl",
+                    "webUrl",
+                    "uploader"
+                ]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "title": {
+                        "label": "Title"
+                    },
+                    "website": {
+                        "label": "Website",
+                        "format": "link"
+                    },
+                    "seeds": {
+                        "label": "# Seeds",
+                        "format": "number"
+                    },
+                    "leeches": {
+                        "label": "# Leeches",
+                        "format": "number"
+                    },
+                    "size": {
+                        "label": "Size"
+                    },
+                    "magnetUrl": {
+                        "label": "Magnet URL",
+                        "format": "link"
+                    },
+                    "downloadUrl": {
+                        "label": "Download URL",
+                        "format": "link"
+                    },
+                    "webUrl": {
+                        "label": "Website URL",
+                        "format": "link"
+                    },
+                    "uploader": {
+                        "label": "Uploader"
+                    }
+                }
+            }
+        }
+    }
+}
