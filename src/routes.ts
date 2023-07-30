@@ -54,6 +54,7 @@ router.addHandler<UserData>(Labels.TPB, async ({ request, $, log }) => {
                 const title = titleEl.text().trim();
                 if (!title) {
                     log.warning(`Missing title, skipping ${index}. row`);
+                    return null;
                 }
                 const webUrl = titleEl.attr('href');
                 const magnetUrl = $(mainCellEl).find('a[href^="magnet"]').attr('href');
