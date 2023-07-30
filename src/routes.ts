@@ -207,3 +207,38 @@ router.addHandler<UserData>(Labels.LIME_ITEM, async ({ request, $, log }) => {
         magnetUrl,
     });
 });
+
+router.addHandler<UserData>(Labels.SOLID_TORRENTS, async ({ request, $, log }) => {
+    const { userData: { baseUrl }, loadedUrl } = request;
+    const rowEls = $('.container li').toArray();
+    const torrents: TorrentItem[] = [];
+    for (const [index, rowEl] of rowEls.entries()) {
+        const titleEl = $(rowEl).find('h5 a');
+        const title = titleEl.text().trim();
+        if (!title) {
+            log.warning(`Missing title, skipping ${index}. row`);
+            continue;
+        }
+        const webUrlHref = titleEl.attr('href');
+        const webUrl = webUrlHref && new URL(webUrlHref, baseUrl).toString();
+        const statsEl = $(rowEl).find('.stats');
+        const size = $(statsEl).find('div:nth-child(2)').text().trim();
+        const seeds = $(statsEl).find('div:nth-child(3)').text().trim();
+        const leeches = $(statsEl).find('div:nth-child(4)').text().trim();
+        const linksEl = $(rowEl).find('.links');
+        const magnetUrl = $(linksEl).find('a[href^="magnet:"]').attr('href');
+        const downloadUrl = $(linksEl).find('a.dl-torrent').attr('href');
+        torrents.push({
+            title,
+            webUrl,
+            size,
+            seeds,
+            leeches,
+            magnetUrl,
+            downloadUrl,
+            website: baseUrl,
+        });
+    }
+    log.info(`Found ${torrents.length} torrents on ${loadedUrl}`);
+    await Dataset.pushData(torrents);
+});

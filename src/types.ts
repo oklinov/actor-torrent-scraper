@@ -15,6 +15,7 @@ export const enum Labels {
     LIME = 'LIME',
     LIME_ITEM = 'LIME_ITEM',
     NYAA = 'NYAA',
+    SOLID_TORRENTS = 'SOLID_TORRENTS',
 }
 
 export type TorrentItem = {

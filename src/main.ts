@@ -37,6 +37,13 @@ const requests: RequestOptions<UserData>[] = [
             baseUrl: 'https://www.limetorrents.to',
         },
     },
+    {
+        url: `https://solidtorrents.to/search?q=${query}&sort=seeders`,
+        label: Labels.SOLID_TORRENTS,
+        userData: {
+            baseUrl: 'https://solidtorrents.to',
+        },
+    },
 ];
 
 const proxyConfiguration = await Actor.createProxyConfiguration();
