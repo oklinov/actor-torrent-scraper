@@ -4,7 +4,8 @@ import { Labels, RowParser, TorrentItem, UserData } from './types.js';
 export const router = createCheerioRouter();
 
 router.addHandler<UserData>(Labels.GLO, async ({ request, $, log }) => {
-    const { userData: { baseUrl }, loadedUrl } = request;
+    const { loadedUrl } = request;
+    const { origin } = new URL(loadedUrl!);
     const rowEls = $('table tr.t-row');
     log.info(`Found ${rowEls.length} torrents on ${loadedUrl}`);
     for (const rowEl of rowEls) {
@@ -15,9 +16,9 @@ router.addHandler<UserData>(Labels.GLO, async ({ request, $, log }) => {
             continue;
         }
         const webUrlHref = titleEl.attr('href');
-        const webUrl = webUrlHref && new URL(webUrlHref, baseUrl).toString();
+        const webUrl = webUrlHref && new URL(webUrlHref, origin).toString();
         const downloadUrlHref = $(rowEl).find('td:nth-child(3) a').attr('href');
-        const downloadUrl = downloadUrlHref && new URL(downloadUrlHref, baseUrl).toString();
+        const downloadUrl = downloadUrlHref && new URL(downloadUrlHref, origin).toString();
         const magnetUrl = $(rowEl).find('td:nth-child(4) a').attr('href');
         const size = $(rowEl).find('td:nth-child(5)').text().trim();
         const seeds = $(rowEl).find('td:nth-child(6)').text().trim();
@@ -33,13 +34,14 @@ router.addHandler<UserData>(Labels.GLO, async ({ request, $, log }) => {
             seeds,
             leeches,
             uploader,
-            website: baseUrl,
+            origin,
         });
     }
 });
 
 router.addHandler<UserData>(Labels.TPB, async ({ request, $, log }) => {
-    const { userData: { baseUrl }, loadedUrl } = request;
+    const { loadedUrl } = request;
+    const { origin } = new URL(loadedUrl!);
     const rowEls = $('table tr').toArray();
     const numOfCols = $(rowEls[0]).find('> th, > td').length;
     let rowParser: RowParser;
@@ -78,7 +80,7 @@ router.addHandler<UserData>(Labels.TPB, async ({ request, $, log }) => {
                     seeds,
                     leeches,
                     uploader,
-                    website: baseUrl,
+                    origin,
                 };
             };
             break;
@@ -104,7 +106,7 @@ router.addHandler<UserData>(Labels.TPB, async ({ request, $, log }) => {
                     seeds,
                     leeches,
                     uploader,
-                    website: baseUrl,
+                    origin,
                 };
             };
             break;
@@ -125,7 +127,8 @@ router.addHandler<UserData>(Labels.TPB, async ({ request, $, log }) => {
 });
 
 router.addHandler<UserData>(Labels.NYAA, async ({ request, $, log }) => {
-    const { userData: { baseUrl }, loadedUrl } = request;
+    const { loadedUrl } = request;
+    const { origin } = new URL(loadedUrl!);
     const rowEls = $('table tr.default');
     log.info(`Found ${rowEls.length} torrents on ${loadedUrl}`);
     for (const rowEl of rowEls) {
@@ -136,9 +139,9 @@ router.addHandler<UserData>(Labels.NYAA, async ({ request, $, log }) => {
             continue;
         }
         const webUrlHref = titleEl.attr('href');
-        const webUrl = webUrlHref && new URL(webUrlHref, baseUrl).toString();
+        const webUrl = webUrlHref && new URL(webUrlHref, origin).toString();
         const downloadUrlHref = $(rowEl).find('td:nth-child(3) a[href^=/download]').attr('href');
-        const downloadUrl = downloadUrlHref && new URL(downloadUrlHref, baseUrl).toString();
+        const downloadUrl = downloadUrlHref && new URL(downloadUrlHref, origin).toString();
         const magnetUrl = $(rowEl).find('td:nth-child(3) a[href^="magnet:"]').attr('href');
         const size = $(rowEl).find('td:nth-child(4)').text().trim();
         const seeds = $(rowEl).find('td:nth-child(6)').text().trim();
@@ -151,13 +154,14 @@ router.addHandler<UserData>(Labels.NYAA, async ({ request, $, log }) => {
             seeds,
             leeches,
             downloadUrl,
-            website: baseUrl,
+            origin,
         });
     }
 });
 
 router.addHandler<UserData>(Labels.LIME, async ({ crawler, request, $, log }) => {
-    const { userData: { baseUrl }, loadedUrl } = request;
+    const { loadedUrl } = request;
+    const { origin } = new URL(loadedUrl!);
     const rowEls = $('#content table.table2 tr');
     const torrents: TorrentItem[] = [];
     for (const [index, rowEl] of rowEls.toArray().entries()) {
@@ -168,7 +172,7 @@ router.addHandler<UserData>(Labels.LIME, async ({ crawler, request, $, log }) =>
         }
         const title = $(titleCellEls[1]).text().trim();
         const webUrlHref = $(titleCellEls[1]).attr('href');
-        const webUrl = webUrlHref && new URL(webUrlHref, baseUrl).toString();
+        const webUrl = webUrlHref && new URL(webUrlHref, origin).toString();
         const downloadUrl = $(titleCellEls[0]).attr('href');
         const size = $(rowEl).find('td:nth-child(3)').text().trim();
         const seeds = $(rowEl).find('td:nth-child(4)').text().trim();
@@ -180,7 +184,7 @@ router.addHandler<UserData>(Labels.LIME, async ({ crawler, request, $, log }) =>
             size,
             seeds,
             leeches,
-            website: baseUrl,
+            origin,
         });
     }
     log.info(`Found ${torrents.length} torrents on ${loadedUrl}`);
@@ -189,7 +193,6 @@ router.addHandler<UserData>(Labels.LIME, async ({ crawler, request, $, log }) =>
         label: Labels.LIME_ITEM,
         userData: {
             torrent,
-            baseUrl,
         },
     })));
 });
@@ -209,7 +212,8 @@ router.addHandler<UserData>(Labels.LIME_ITEM, async ({ request, $, log }) => {
 });
 
 router.addHandler<UserData>(Labels.SOLID_TORRENTS, async ({ request, $, log }) => {
-    const { userData: { baseUrl }, loadedUrl } = request;
+    const { loadedUrl } = request;
+    const { origin } = new URL(loadedUrl!);
     const rowEls = $('.container li').toArray();
     const torrents: TorrentItem[] = [];
     for (const [index, rowEl] of rowEls.entries()) {
@@ -220,7 +224,7 @@ router.addHandler<UserData>(Labels.SOLID_TORRENTS, async ({ request, $, log }) =
             continue;
         }
         const webUrlHref = titleEl.attr('href');
-        const webUrl = webUrlHref && new URL(webUrlHref, baseUrl).toString();
+        const webUrl = webUrlHref && new URL(webUrlHref, origin).toString();
         const statsEl = $(rowEl).find('.stats');
         const size = $(statsEl).find('div:nth-child(2)').text().trim();
         const seeds = $(statsEl).find('div:nth-child(3)').text().trim();
@@ -236,7 +240,7 @@ router.addHandler<UserData>(Labels.SOLID_TORRENTS, async ({ request, $, log }) =
             leeches,
             magnetUrl,
             downloadUrl,
-            website: baseUrl,
+            origin,
         });
     }
     log.info(`Found ${torrents.length} torrents on ${loadedUrl}`);

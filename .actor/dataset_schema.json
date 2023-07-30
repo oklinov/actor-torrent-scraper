@@ -7,7 +7,7 @@
             "transformation": {
                 "fields": [
                     "title",
-                    "website",
+                    "origin",
                     "seeds",
                     "leeches",
                     "size",
@@ -23,8 +23,8 @@
                     "title": {
                         "label": "Title"
                     },
-                    "website": {
-                        "label": "Website",
+                    "origin": {
+                        "label": "Origin",
                         "format": "link"
                     },
                     "seeds": {

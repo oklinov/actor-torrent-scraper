@@ -5,7 +5,6 @@ export type Input = {
 }
 
 export type UserData = {
-    baseUrl: string
     torrent?: TorrentItem
 }
 
@@ -28,7 +27,7 @@ export type TorrentItem = {
     magnetUrl?: string
     webUrl?: string
     downloadUrl?: string
-    website: string
+    origin: string
 }
 
 export type RowParser = (rowEl: Element, index: number) => TorrentItem | null;

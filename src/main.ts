@@ -12,37 +12,22 @@ const requests: RequestOptions<UserData>[] = [
     {
         url: `https://www.gtdb.to/search_results.php?search=${query}&sort=seeders&order=desc`,
         label: Labels.GLO,
-        userData: {
-            baseUrl: 'https://www.gtdb.to',
-        },
     },
     {
         url: `https://tpb.party/search/${query}/1/99/0`,
         label: Labels.TPB,
-        userData: {
-            baseUrl: 'https://tpb.party',
-        },
     },
     {
         url: `https://nyaa.si?q=${query}&s=seeders&o=desc`,
         label: Labels.NYAA,
-        userData: {
-            baseUrl: 'https://nyaa.si',
-        },
     },
     {
         url: `https://www.limetorrents.to/search/all/${query}/seeds/1/`,
         label: Labels.LIME,
-        userData: {
-            baseUrl: 'https://www.limetorrents.to',
-        },
     },
     {
         url: `https://solidtorrents.to/search?q=${query}&sort=seeders`,
         label: Labels.SOLID_TORRENTS,
-        userData: {
-            baseUrl: 'https://solidtorrents.to',
-        },
     },
 ];
 
