@@ -7,7 +7,7 @@ router.addHandler<UserData>(Labels.GLO, async ({ request, $, log }) => {
     const { loadedUrl } = request;
     const { origin } = new URL(loadedUrl!);
     const rowEls = $('table tr.t-row');
-    log.info(`Found ${rowEls.length} torrents on ${loadedUrl}`);
+    const torrents: TorrentItem[] = [];
     for (const rowEl of rowEls) {
         const titleEl = $(rowEl).find('td:nth-child(2) a:nth-child(2)');
         const title = titleEl.text().trim();
@@ -25,7 +25,7 @@ router.addHandler<UserData>(Labels.GLO, async ({ request, $, log }) => {
         const leeches = $(rowEl).find('td:nth-child(7)').text().trim();
         const uploader = $(rowEl).find('td:nth-child(8) a font').text().trim();
 
-        await Dataset.pushData<TorrentItem>({
+        torrents.push({
             title,
             webUrl,
             downloadUrl,
@@ -37,6 +37,8 @@ router.addHandler<UserData>(Labels.GLO, async ({ request, $, log }) => {
             origin,
         });
     }
+    log.info(`Found ${rowEls.length} torrents on ${loadedUrl}`);
+    await Dataset.pushData<TorrentItem>(torrents);
 });
 
 router.addHandler<UserData>(Labels.TPB, async ({ request, $, log }) => {
