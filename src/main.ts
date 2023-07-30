@@ -10,7 +10,7 @@ const { query } = input!;
 
 const requests: RequestOptions<UserData>[] = [
     {
-        url: `https://www.gtdb.to/search_results.php?search=${query}`,
+        url: `https://www.gtdb.to/search_results.php?search=${query}&sort=seeders&order=desc`,
         label: Labels.GLO,
         userData: {
             baseUrl: 'https://www.gtdb.to',
