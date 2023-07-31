@@ -8,6 +8,29 @@
             "type": "string",
             "description": "Query for torrent search",
             "editor": "textfield"
+        },
+        "scrapers": {
+            "title": "Scrapers",
+            "type": "array",
+            "description": "Select what scrapers you want to use. All available scrapers will be used if none selected.",
+            "editor": "select",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "gloTorrents",
+                    "thePirateBay",
+                    "limeTorrents",
+                    "nyaa",
+                    "solidTorrents"
+                ],
+                "enumTitles": [
+                    "Glo Torrents",
+                    "The Pirate Bay",
+                    "Lime Torrents",
+                    "Nyaa Torrents",
+                    "Solid Torrents"
+                ]
+            }
         }
     }
 }

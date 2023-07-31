@@ -2,11 +2,19 @@ import { Element } from 'cheerio';
 
 export type Input = {
     query: string
+    scrapers: Scraper[]
 }
 
 export type UserData = {
     torrent?: TorrentItem
 }
+
+export type Scraper =
+    | 'gloTorrents'
+    | 'thePirateBay'
+    | 'limeTorrents'
+    | 'nyaa'
+    | 'solidTorrents'
 
 export const enum Labels {
     GLO = 'GLO',
