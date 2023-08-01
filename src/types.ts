@@ -38,4 +38,4 @@ export type TorrentItem = {
     origin: string
 }
 
-export type RowParser = (rowEl: Element, index: number) => TorrentItem | null;
+export type RowParser = (rowEl: Element) => TorrentItem | null;

@@ -12,7 +12,6 @@ router.addHandler<UserData>(Labels.GLO, async ({ request, $, log }) => {
         const titleEl = $(rowEl).find('td:nth-child(2) a:nth-child(2)');
         const title = titleEl.text().trim();
         if (!title) {
-            log.warning('Missing title, skipping');
             continue;
         }
         const webUrlHref = titleEl.attr('href');
@@ -44,7 +43,7 @@ router.addHandler<UserData>(Labels.GLO, async ({ request, $, log }) => {
 router.addHandler<UserData>(Labels.TPB, async ({ request, $, log }) => {
     const { loadedUrl } = request;
     const { origin } = new URL(loadedUrl!);
-    const rowEls = $('table tr').toArray();
+    const rowEls = $('table tr');
     const numOfCols = $(rowEls[0]).find('> th, > td').length;
     let rowParser: RowParser;
 
@@ -52,12 +51,11 @@ router.addHandler<UserData>(Labels.TPB, async ({ request, $, log }) => {
     // I could not determine how to request only one so I count with both variants
     switch (numOfCols) {
         case 4:
-            rowParser = (rowEl, index) => {
+            rowParser = (rowEl) => {
                 const mainCellEl = $(rowEl).find('td:nth-child(2)');
                 const titleEl = $(mainCellEl).find('.detName a');
                 const title = titleEl.text().trim();
                 if (!title) {
-                    log.warning(`Missing title, skipping ${index}. row`);
                     return null;
                 }
                 const webUrl = titleEl.attr('href');
@@ -87,11 +85,10 @@ router.addHandler<UserData>(Labels.TPB, async ({ request, $, log }) => {
             };
             break;
         case 8:
-            rowParser = (rowEl, index) => {
+            rowParser = (rowEl) => {
                 const titleEl = $(rowEl).find('td:nth-child(2) a');
                 const title = titleEl.text().trim();
                 if (!title) {
-                    log.warning(`Missing title, skipping ${index}. row`);
                     return null;
                 }
                 const webUrl = titleEl.attr('href');
@@ -118,8 +115,8 @@ router.addHandler<UserData>(Labels.TPB, async ({ request, $, log }) => {
     }
     log.info(`Using ${numOfCols}-column table parser`);
     const torrents: TorrentItem[] = [];
-    for (const [index, rowEl] of rowEls.entries()) {
-        const torrent = rowParser(rowEl, index);
+    for (const rowEl of rowEls) {
+        const torrent = rowParser(rowEl);
         if (torrent) {
             torrents.push(torrent);
         }
@@ -132,12 +129,11 @@ router.addHandler<UserData>(Labels.NYAA, async ({ request, $, log }) => {
     const { loadedUrl } = request;
     const { origin } = new URL(loadedUrl!);
     const rowEls = $('table tr.default');
-    log.info(`Found ${rowEls.length} torrents on ${loadedUrl}`);
+    const torrents: TorrentItem[] = [];
     for (const rowEl of rowEls) {
         const titleEl = $(rowEl).find('td:nth-child(2) a[href^=/view]');
         const title = titleEl.text().trim();
         if (!title) {
-            log.warning('Missing title, skipping');
             continue;
         }
         const webUrlHref = titleEl.attr('href');
@@ -148,7 +144,7 @@ router.addHandler<UserData>(Labels.NYAA, async ({ request, $, log }) => {
         const size = $(rowEl).find('td:nth-child(4)').text().trim();
         const seeds = $(rowEl).find('td:nth-child(6)').text().trim();
         const leeches = $(rowEl).find('td:nth-child(7)').text().trim();
-        await Dataset.pushData<TorrentItem>({
+        torrents.push({
             title,
             webUrl,
             magnetUrl,
@@ -159,6 +155,8 @@ router.addHandler<UserData>(Labels.NYAA, async ({ request, $, log }) => {
             origin,
         });
     }
+    log.info(`Found ${rowEls.length} torrents on ${loadedUrl}`);
+    await Dataset.pushData(torrents);
 });
 
 router.addHandler<UserData>(Labels.LIME, async ({ crawler, request, $, log }) => {
@@ -173,6 +171,9 @@ router.addHandler<UserData>(Labels.LIME, async ({ crawler, request, $, log }) =>
             continue;
         }
         const title = $(titleCellEls[1]).text().trim();
+        if (!title) {
+            continue;
+        }
         const webUrlHref = $(titleCellEls[1]).attr('href');
         const webUrl = webUrlHref && new URL(webUrlHref, origin).toString();
         const downloadUrl = $(titleCellEls[0]).attr('href');
@@ -206,7 +207,7 @@ router.addHandler<UserData>(Labels.LIME_ITEM, async ({ request, $, log }) => {
         log.warning(`Could not find magnet url at ${loadedUrl}`);
         return;
     }
-    log.info(`Found magnet url of ${torrent?.title} at ${loadedUrl}`);
+    log.info(`Found magnet url of "${torrent?.title}" at ${loadedUrl}`);
     await Dataset.pushData({
         ...torrent,
         magnetUrl,
@@ -218,11 +219,10 @@ router.addHandler<UserData>(Labels.SOLID_TORRENTS, async ({ request, $, log }) =
     const { origin } = new URL(loadedUrl!);
     const rowEls = $('.container li').toArray();
     const torrents: TorrentItem[] = [];
-    for (const [index, rowEl] of rowEls.entries()) {
+    for (const rowEl of rowEls) {
         const titleEl = $(rowEl).find('h5 a');
         const title = titleEl.text().trim();
         if (!title) {
-            log.warning(`Missing title, skipping ${index}. row`);
             continue;
         }
         const webUrlHref = titleEl.attr('href');
