@@ -2,7 +2,8 @@ import { RequestOptions } from 'crawlee';
 
 import { Input, Labels, Scraper, UserData } from './types.js';
 
-export const createRequests = ({ query, scrapers }: Input): RequestOptions<UserData>[] => {
+export const createRequests = ({ scrapers, ...input }: Input): RequestOptions<UserData>[] => {
+    const query = encodeURIComponent(input.query);
     const REQUESTS: Record<Scraper, RequestOptions<UserData>> = {
         gloTorrents: {
             url: `https://www.gtdb.to/search_results.php?search=${query}&sort=seeders&order=desc`,
