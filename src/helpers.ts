@@ -1,6 +1,6 @@
 import { RequestOptions } from 'crawlee';
 
-import { Input, Labels, Scraper, UserData } from './types.js';
+import { Input, Labels, RequestGenerator, Scraper, UserData } from './types.js';
 
 const DEFAULT_SCRAPERS: Scraper[] = ['gloTorrents', 'solidTorrents', 'limeTorrents', 'nyaa', 'thePirateBay'];
 
@@ -16,34 +16,37 @@ export const handleInput = (input: Input): Input => {
     };
 };
 
-export const createRequests = ({ scrapers, ...input }: Input): RequestOptions<UserData>[] => {
-    const query = encodeURIComponent(input.query);
-    const REQUESTS: Record<Scraper, RequestOptions<UserData>> = {
-        gloTorrents: {
-            url: `https://www.gtdb.to/search_results.php?search=${query}&sort=seeders&order=desc`,
-            label: Labels.GLO,
-        },
-        thePirateBay: {
-            url: `https://tpb.party/search/${query}/1/99/0`,
-            label: Labels.TPB,
-        },
-        nyaa: {
-            url: `https://nyaa.si?q=${query}&s=seeders&o=desc`,
-            label: Labels.NYAA,
-        },
-        limeTorrents: {
-            url: `https://www.limetorrents.to/search/all/${query}/seeds/1/`,
-            label: Labels.LIME,
-        },
-        solidTorrents: {
-            url: `https://solidtorrents.to/search?q=${query}&sort=seeders`,
-            label: Labels.SOLID_TORRENTS,
-        },
-    };
+const REQUEST_GENERATORS: Record<Scraper, RequestGenerator> = {
+    gloTorrents: (query, page) => ({
+        url: `https://www.gtdb.to/search_results.php?search=${query}&sort=seeders&order=desc&page=${page}`,
+        label: Labels.GLO,
+    }),
+    thePirateBay: (query, page) => ({
+        url: `https://tpb.party/search/${query}/${page + 1}/99/0`,
+        label: Labels.TPB,
+    }),
+    nyaa: (query, page) => ({
+        url: `https://nyaa.si?q=${query}&s=seeders&o=desc&p=${page + 1}`,
+        label: Labels.NYAA,
+    }),
+    limeTorrents: (query, page) => ({
+        url: `https://www.limetorrents.to/search/all/${query}/seeds/${page + 1}/`,
+        label: Labels.LIME,
+    }),
+    solidTorrents: (query, page) => ({
+        url: `https://solidtorrents.to/search?q=${query}&sort=seeders&page=${page + 1}`,
+        label: Labels.SOLID_TORRENTS,
+    }),
+};
 
+export const createPageRequest = (scraper: Scraper, query: string, page = 0): RequestOptions<UserData> => {
+    return REQUEST_GENERATORS[scraper](encodeURIComponent(query), page);
+};
+
+export const createInitialRequests = ({ scrapers, query }: Input): RequestOptions<UserData>[] => {
     const requests: RequestOptions<UserData>[] = [];
     for (const scraper of scrapers) {
-        requests.push(REQUESTS[scraper]);
+        requests.push(createPageRequest(scraper, query));
     }
 
     return requests;

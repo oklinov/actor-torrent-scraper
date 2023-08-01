@@ -1,4 +1,5 @@
 import { Element } from 'cheerio';
+import { RequestOptions } from 'crawlee';
 
 export type Input = {
     query: string
@@ -39,3 +40,5 @@ export type TorrentItem = {
 }
 
 export type RowParser = (rowEl: Element) => TorrentItem | null;
+
+export type RequestGenerator = (query: string, page: number) => RequestOptions<UserData>;
