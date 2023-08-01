@@ -1,9 +1,11 @@
 import { Dataset, createCheerioRouter } from 'crawlee';
 import { Labels, RowParser, TorrentItem, UserData } from './types.js';
+import { handleNextPage } from './helpers.js';
 
 export const router = createCheerioRouter();
 
-router.addHandler<UserData>(Labels.GLO, async ({ request, $, log }) => {
+router.addHandler<UserData>(Labels.GLO, async (ctx) => {
+    const { request, $, log } = ctx;
     const { loadedUrl } = request;
     const { origin } = new URL(loadedUrl!);
     const rowEls = $('table tr.t-row');
@@ -38,9 +40,14 @@ router.addHandler<UserData>(Labels.GLO, async ({ request, $, log }) => {
     }
     log.info(`Found ${rowEls.length} torrents on ${loadedUrl}`);
     await Dataset.pushData<TorrentItem>(torrents);
+    await handleNextPage({
+        ctx,
+        hasNextPage: $('.pagination a:last-child').text().toLowerCase().includes('next'),
+    });
 });
 
-router.addHandler<UserData>(Labels.TPB, async ({ request, $, log }) => {
+router.addHandler<UserData>(Labels.TPB, async (ctx) => {
+    const { request, $, log } = ctx;
     const { loadedUrl } = request;
     const { origin } = new URL(loadedUrl!);
     const rowEls = $('table tr');
@@ -123,9 +130,14 @@ router.addHandler<UserData>(Labels.TPB, async ({ request, $, log }) => {
     }
     log.info(`Found ${torrents.length} torrents on ${loadedUrl}`);
     await Dataset.pushData(torrents);
+    await handleNextPage({
+        ctx,
+        hasNextPage: $('#content table tr img[alt="Next"]').length > 0,
+    });
 });
 
-router.addHandler<UserData>(Labels.NYAA, async ({ request, $, log }) => {
+router.addHandler<UserData>(Labels.NYAA, async (ctx) => {
+    const { request, $, log } = ctx;
     const { loadedUrl } = request;
     const { origin } = new URL(loadedUrl!);
     const rowEls = $('table tr.default');
@@ -157,9 +169,14 @@ router.addHandler<UserData>(Labels.NYAA, async ({ request, $, log }) => {
     }
     log.info(`Found ${rowEls.length} torrents on ${loadedUrl}`);
     await Dataset.pushData(torrents);
+    await handleNextPage({
+        ctx,
+        hasNextPage: $('ul.pagination li.next').length > 0,
+    });
 });
 
-router.addHandler<UserData>(Labels.LIME, async ({ crawler, request, $, log }) => {
+router.addHandler<UserData>(Labels.LIME, async (ctx) => {
+    const { crawler, request, $, log } = ctx;
     const { loadedUrl } = request;
     const { origin } = new URL(loadedUrl!);
     const rowEls = $('#content table.table2 tr');
@@ -198,6 +215,10 @@ router.addHandler<UserData>(Labels.LIME, async ({ crawler, request, $, log }) =>
             torrent,
         },
     })));
+    await handleNextPage({
+        ctx,
+        hasNextPage: $('.search_stat #next').length > 0,
+    });
 });
 
 router.addHandler<UserData>(Labels.LIME_ITEM, async ({ request, $, log }) => {
@@ -214,7 +235,8 @@ router.addHandler<UserData>(Labels.LIME_ITEM, async ({ request, $, log }) => {
     });
 });
 
-router.addHandler<UserData>(Labels.SOLID_TORRENTS, async ({ request, $, log }) => {
+router.addHandler<UserData>(Labels.SOLID_TORRENTS, async (ctx) => {
+    const { request, $, log } = ctx;
     const { loadedUrl } = request;
     const { origin } = new URL(loadedUrl!);
     const rowEls = $('.container li').toArray();
@@ -247,4 +269,8 @@ router.addHandler<UserData>(Labels.SOLID_TORRENTS, async ({ request, $, log }) =
     }
     log.info(`Found ${torrents.length} torrents on ${loadedUrl}`);
     await Dataset.pushData(torrents);
+    await handleNextPage({
+        ctx,
+        hasNextPage: $('.search_stat #next').length > 0,
+    });
 });

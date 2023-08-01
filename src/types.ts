@@ -1,13 +1,18 @@
 import { Element } from 'cheerio';
-import { RequestOptions } from 'crawlee';
+import { CheerioCrawlingContext, Dictionary, Request, RequestOptions } from 'crawlee';
 
 export type Input = {
     query: string
     scrapers: Scraper[]
+    pageLimit: number | null
 }
 
 export type UserData = {
     torrent?: TorrentItem
+    page: number
+    pageLimit: number | null
+    query: string
+    scraper: Scraper
 }
 
 export type Scraper =
@@ -41,4 +46,13 @@ export type TorrentItem = {
 
 export type RowParser = (rowEl: Element) => TorrentItem | null;
 
-export type RequestGenerator = (query: string, page: number) => RequestOptions<UserData>;
+export type RequestGenerator = (userData: UserData) => RequestOptions<UserData>;
+
+export type HandlerContext = Omit<CheerioCrawlingContext<Dictionary, Dictionary>, 'request'> & {
+    request: Request<UserData>;
+}
+
+export type NextPageHandlerOptions = {
+    ctx: HandlerContext
+    hasNextPage: boolean
+}

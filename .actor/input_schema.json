@@ -31,6 +31,13 @@
                     "Solid Torrents"
                 ]
             }
+        },
+        "pageLimit": {
+            "title": "Page limit",
+            "type": "integer",
+            "description": "How many pages should be scraped on each torrent site",
+            "editor": "number",
+            "minimum": 1
         }
     }
 }
