@@ -2,6 +2,20 @@ import { RequestOptions } from 'crawlee';
 
 import { Input, Labels, Scraper, UserData } from './types.js';
 
+const DEFAULT_SCRAPERS: Scraper[] = ['gloTorrents', 'solidTorrents', 'limeTorrents', 'nyaa', 'thePirateBay'];
+
+/**
+ * This function returns a new `Input` object with `scrapers` set to `DEFAULT_SCRAPERS` if its empty
+ */
+export const handleInput = (input: Input): Input => {
+    const { scrapers } = input;
+    const selectedScrapers = (scrapers && scrapers.length > 0) ? scrapers : DEFAULT_SCRAPERS;
+    return {
+        ...input,
+        scrapers: selectedScrapers,
+    };
+};
+
 export const createRequests = ({ scrapers, ...input }: Input): RequestOptions<UserData>[] => {
     const query = encodeURIComponent(input.query);
     const REQUESTS: Record<Scraper, RequestOptions<UserData>> = {
@@ -26,11 +40,9 @@ export const createRequests = ({ scrapers, ...input }: Input): RequestOptions<Us
             label: Labels.SOLID_TORRENTS,
         },
     };
-    const DEFAULT_SCRAPERS: Scraper[] = ['gloTorrents', 'solidTorrents', 'limeTorrents', 'nyaa', 'thePirateBay'];
-    const scrapersList = (scrapers && scrapers.length > 0) ? scrapers : DEFAULT_SCRAPERS;
 
     const requests: RequestOptions<UserData>[] = [];
-    for (const scraper of scrapersList) {
+    for (const scraper of scrapers) {
         requests.push(REQUESTS[scraper]);
     }
 
