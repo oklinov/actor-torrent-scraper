@@ -8,11 +8,16 @@ const DEFAULT_SCRAPERS: Scraper[] = ['gloTorrents', 'solidTorrents', 'limeTorren
  * This function returns a new `Input` object with `scrapers` set to `DEFAULT_SCRAPERS` if its empty
  */
 export const handleInput = (input: Input): Input => {
-    const { scrapers } = input;
-    const selectedScrapers = (scrapers && scrapers.length > 0) ? scrapers : DEFAULT_SCRAPERS;
+    const { minSeedsForNextPage } = input;
+    let { pageLimit, scrapers } = input;
+    scrapers = (scrapers && scrapers.length > 0) ? scrapers : DEFAULT_SCRAPERS;
+    if (pageLimit === null && minSeedsForNextPage === null) {
+        pageLimit = 1;
+    }
     return {
         ...input,
-        scrapers: selectedScrapers,
+        pageLimit,
+        scrapers,
     };
 };
 
@@ -48,10 +53,16 @@ export const createPageRequest = (userData: UserData): RequestOptions<UserData> 
     return REQUEST_GENERATORS[userData.scraper](userData);
 };
 
-export const createInitialRequests = ({ pageLimit, query, scrapers }: Input): RequestOptions<UserData>[] => {
+export const createInitialRequests = ({
+    minSeedsForNextPage,
+    pageLimit,
+    query,
+    scrapers,
+}: Input): RequestOptions<UserData>[] => {
     const requests: RequestOptions<UserData>[] = [];
     for (const scraper of scrapers) {
         const userData: UserData = {
+            minSeedsForNextPage,
             page: 0,
             pageLimit,
             query: encodeURIComponent(query),
@@ -63,18 +74,31 @@ export const createInitialRequests = ({ pageLimit, query, scrapers }: Input): Re
     return requests;
 };
 
-export const handleNextPage = async ({ ctx, hasNextPage }: NextPageHandlerOptions) => {
+export const handleNextPage = async ({
+    ctx,
+    hasNextPage,
+    lastTorrent,
+}: NextPageHandlerOptions) => {
+    if (!lastTorrent) {
+        return;
+    }
     const { crawler, log, request } = ctx;
-    const { userData } = request;
-    const { page, pageLimit } = userData;
+    const { loadedUrl, userData } = request;
+    const { minSeedsForNextPage, page, pageLimit } = userData;
     const nextPage = page + 1;
-    const shouldFetchNextPage = pageLimit && nextPage < pageLimit;
-    if (!shouldFetchNextPage) {
-        log.info(`Finished scraping Scraped ${nextPage}/${pageLimit ?? '-'} pages`);
+    const reachedPageLimit = pageLimit && nextPage >= pageLimit;
+    if (reachedPageLimit) {
+        log.info(`Reached page limit (${pageLimit})`);
+        return;
+    }
+    const { seeds: minSeeds } = lastTorrent;
+    const satisfiesSeedLimit = minSeedsForNextPage === null || minSeeds >= minSeedsForNextPage;
+    if (!satisfiesSeedLimit) {
+        log.info(`The last torrent has ${minSeeds} seeds, at least ${minSeedsForNextPage} seeds are required to scrape next page`);
         return;
     }
     if (!hasNextPage) {
-        log.info(`No more pages to scrape, scraped ${nextPage}/${pageLimit ?? '-'} pages`);
+        log.info(`No more pages to scrape at ${new URL(loadedUrl!).origin}`);
         return;
     }
     const nextRequest = createPageRequest({

@@ -55,6 +55,7 @@ router.addHandler<UserData>(Labels.GLO, async (ctx) => {
     await handleNextPage({
         ctx,
         hasNextPage: $('.pagination a:last-child').text().toLowerCase().includes('next'),
+        lastTorrent: torrents[torrents.length - 1],
     });
 });
 
@@ -165,6 +166,7 @@ router.addHandler<UserData>(Labels.TPB, async (ctx) => {
     await handleNextPage({
         ctx,
         hasNextPage: $('#content table tr img[alt="Next"]').length > 0,
+        lastTorrent: torrents[torrents.length - 1],
     });
 });
 
@@ -214,6 +216,7 @@ router.addHandler<UserData>(Labels.NYAA, async (ctx) => {
     await handleNextPage({
         ctx,
         hasNextPage: $('ul.pagination li.next').length > 0,
+        lastTorrent: torrents[torrents.length - 1],
     });
 });
 
@@ -270,6 +273,7 @@ router.addHandler<UserData>(Labels.LIME, async (ctx) => {
     await handleNextPage({
         ctx,
         hasNextPage: $('.search_stat #next').length > 0,
+        lastTorrent: torrents[torrents.length - 1],
     });
 });
 
@@ -334,5 +338,6 @@ router.addHandler<UserData>(Labels.SOLID_TORRENTS, async (ctx) => {
     await handleNextPage({
         ctx,
         hasNextPage: $('.search_stat #next').length > 0,
+        lastTorrent: torrents[torrents.length - 1],
     });
 });

@@ -38,6 +38,13 @@
             "description": "How many pages should be scraped on each torrent site",
             "editor": "number",
             "minimum": 1
+        },
+        "minSeedsForNextPage": {
+            "title": "Minimum seeds for next page",
+            "type": "integer",
+            "description": "Scraper will not scrape next page if the last torrent on current page has less seeds than this value",
+            "editor": "number",
+            "minimum": 1
         }
     }
 }

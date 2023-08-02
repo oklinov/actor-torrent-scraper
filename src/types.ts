@@ -1,17 +1,19 @@
 import { Element } from 'cheerio';
 import { CheerioCrawlingContext, Dictionary, Request, RequestOptions } from 'crawlee';
 
-export type Input = {
+type PageContext = {
     query: string
-    scrapers: Scraper[]
     pageLimit: number | null
+    minSeedsForNextPage: number | null
 }
 
-export type UserData = {
+export type Input = PageContext & {
+    scrapers: Scraper[]
+}
+
+export type UserData = PageContext & {
     torrent?: TorrentItem
     page: number
-    pageLimit: number | null
-    query: string
     scraper: Scraper
 }
 
@@ -55,4 +57,5 @@ export type HandlerContext = Omit<CheerioCrawlingContext<Dictionary, Dictionary>
 export type NextPageHandlerOptions = {
     ctx: HandlerContext
     hasNextPage: boolean
+    lastTorrent: TorrentItem | undefined
 }
