@@ -1,5 +1,11 @@
 import { Element } from 'cheerio';
-import { CheerioCrawlingContext, Dictionary, Request, RequestOptions } from 'crawlee';
+import {
+    CheerioCrawlingContext,
+    Dictionary,
+    ProxyConfigurationOptions,
+    Request,
+    RequestOptions,
+} from 'crawlee';
 
 type PageContext = {
     query: string
@@ -8,6 +14,7 @@ type PageContext = {
 }
 
 export type Input = PageContext & {
+    proxyConfiguration?: ProxyConfigurationOptions
     torrentSites: TorrentSite[]
 }
 

@@ -53,6 +53,15 @@
             "description": "Scraper will not scrape next page if the last torrent on current page has less seeds than this value",
             "editor": "number",
             "minimum": 1
+        },
+        "proxyConfiguration": {
+            "title": "Proxy configuration",
+            "type": "object",
+            "description": "Select proxies to be used by the scraper.",
+            "prefill": {
+                "useApifyProxy": true
+            },
+            "editor": "proxy"
         }
     },
     "required": ["query"]

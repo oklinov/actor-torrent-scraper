@@ -15,7 +15,7 @@ log.info(`Page limit: ${pageLimit ?? 'not specified'}`);
 
 const requests = createInitialRequests(input);
 
-const proxyConfiguration = await Actor.createProxyConfiguration();
+const proxyConfiguration = await Actor.createProxyConfiguration(input.proxyConfiguration);
 
 const crawler = new CheerioCrawler({
     proxyConfiguration,
