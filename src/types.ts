@@ -8,16 +8,16 @@ type PageContext = {
 }
 
 export type Input = PageContext & {
-    scrapers: Scraper[]
+    torrentSites: TorrentSite[]
 }
 
 export type UserData = PageContext & {
     torrent?: TorrentItem
     page: number
-    scraper: Scraper
+    torrentSite: TorrentSite
 }
 
-export type Scraper =
+export type TorrentSite =
     | 'gloTorrents'
     | 'thePirateBay'
     | 'limeTorrents'

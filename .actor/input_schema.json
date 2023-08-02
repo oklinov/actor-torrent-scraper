@@ -9,10 +9,10 @@
             "description": "Query for torrent search",
             "editor": "textfield"
         },
-        "scrapers": {
-            "title": "Scrapers",
+        "torrentSites": {
+            "title": "Torrent Sites",
             "type": "array",
-            "description": "Select what scrapers you want to use. All available scrapers will be used if none selected.",
+            "description": "Select what sites you want to scrape. If none selected, then all sites will be used",
             "editor": "select",
             "items": {
                 "type": "string",

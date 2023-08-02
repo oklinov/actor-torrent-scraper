@@ -1,27 +1,42 @@
 import { RequestOptions } from 'crawlee';
 
-import { Input, Labels, NextPageHandlerOptions, RequestGenerator, Scraper, UserData } from './types.js';
+import {
+    Input,
+    Labels,
+    NextPageHandlerOptions,
+    RequestGenerator,
+    TorrentSite,
+    UserData,
+} from './types.js';
 
-const DEFAULT_SCRAPERS: Scraper[] = ['gloTorrents', 'solidTorrents', 'limeTorrents', 'nyaa', 'thePirateBay'];
+const DEFAULT_TORRENT_SITES: TorrentSite[] = [
+    'gloTorrents',
+    'solidTorrents',
+    'limeTorrents',
+    'nyaa',
+    'thePirateBay',
+];
 
 /**
- * This function returns a new `Input` object with `scrapers` set to `DEFAULT_SCRAPERS` if its empty
+ * This function returns a new `Input` object with `torrentSites` set to `DEFAULT_TORRENT_SITES` if its empty
  */
 export const handleInput = (input: Input): Input => {
     const { minSeedsForNextPage } = input;
-    let { pageLimit, scrapers } = input;
-    scrapers = (scrapers && scrapers.length > 0) ? scrapers : DEFAULT_SCRAPERS;
+    let { pageLimit, torrentSites } = input;
+    torrentSites = (torrentSites && torrentSites.length > 0)
+        ? torrentSites
+        : DEFAULT_TORRENT_SITES;
     if (pageLimit === null && minSeedsForNextPage === null) {
         pageLimit = 1;
     }
     return {
         ...input,
         pageLimit,
-        scrapers,
+        torrentSites,
     };
 };
 
-const REQUEST_GENERATORS: Record<Scraper, RequestGenerator> = {
+const REQUEST_GENERATORS: Record<TorrentSite, RequestGenerator> = {
     gloTorrents: (userData) => ({
         url: `https://www.gtdb.to/search_results.php?search=${userData.query}&sort=seeders&order=desc&page=${userData.page}`,
         label: Labels.GLO,
@@ -50,23 +65,23 @@ const REQUEST_GENERATORS: Record<Scraper, RequestGenerator> = {
 };
 
 export const createPageRequest = (userData: UserData): RequestOptions<UserData> => {
-    return REQUEST_GENERATORS[userData.scraper](userData);
+    return REQUEST_GENERATORS[userData.torrentSite](userData);
 };
 
 export const createInitialRequests = ({
     minSeedsForNextPage,
     pageLimit,
     query,
-    scrapers,
+    torrentSites,
 }: Input): RequestOptions<UserData>[] => {
     const requests: RequestOptions<UserData>[] = [];
-    for (const scraper of scrapers) {
+    for (const torrentSite of torrentSites) {
         const userData: UserData = {
             minSeedsForNextPage,
             page: 0,
             pageLimit,
             query: encodeURIComponent(query),
-            scraper,
+            torrentSite,
         };
         requests.push(createPageRequest(userData));
     }

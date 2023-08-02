@@ -9,8 +9,8 @@ let input = await Actor.getInput<Input>();
 if (!input) throw new Error('Input not provided');
 input = handleInput(input);
 
-const { pageLimit, query, scrapers } = input;
-log.info(`Searching for "${query}" on ${scrapers.join(', ')}`);
+const { pageLimit, query, torrentSites } = input;
+log.info(`Searching for "${query}" on ${torrentSites.join(', ')}`);
 log.info(`Page limit: ${pageLimit ?? 'not specified'}`);
 
 const requests = createInitialRequests(input);

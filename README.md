@@ -15,18 +15,18 @@ Torrent sites used by the scraper:
 | Parameter | Required | Description |
 | - | - | - |
 | query | Yes | torrent name you search for |
-| scrapers | No | you can select which site you want to scrape |
+| torrentSites | No | you can select which site you want to scrape |
 | pageLimit | No | how many pages to scrape (at most), default to 1 if `minSeedsForNextPage` is not set |
 | minSeedsForNextPage | No | minimum seeds each torrent needs to have in order to scrape next page |
 
 ### Input example
 
-With this input, actor will scrape at most 3 pages on each site. If, for example, the last torrent on a second page has less than 10 seeds, the scraper will not query the next page.
+With this input, actor will scrape at most 3 pages on each site. If, for example, the last torrent on a second page has less than 10 seeds, the scraper will not scrape the next page.
 
 ```json
 {
     "query": "ubuntu",
-    "scrapers": [
+    "torrentSites": [
         "thePirateBay",
         "gloTorrents",
         "limeTorrents",
