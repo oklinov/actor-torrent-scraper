@@ -74,6 +74,10 @@ export const createInitialRequests = ({
     return requests;
 };
 
+/**
+ * This function determines whether the next page should be scraped based on
+ * `pageLimit` and `minSeedsForNextPage` values
+ */
 export const handleNextPage = async ({
     ctx,
     hasNextPage,
