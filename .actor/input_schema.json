@@ -6,6 +6,7 @@
         "query": {
             "title": "Query",
             "type": "string",
+            "prefill": "debian",
             "description": "Query for torrent search",
             "editor": "textfield"
         },
@@ -14,6 +15,13 @@
             "type": "array",
             "description": "Select what sites you want to scrape. If none selected, then all sites will be used",
             "editor": "select",
+            "default": [
+                "gloTorrents",
+                "thePirateBay",
+                "limeTorrents",
+                "nyaa",
+                "solidTorrents"
+            ],
             "items": {
                 "type": "string",
                 "enum": [
