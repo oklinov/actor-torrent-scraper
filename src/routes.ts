@@ -1,6 +1,6 @@
 import { Dataset, createCheerioRouter } from 'crawlee';
 import { Labels, RowParser, TorrentItem, UserData } from './types.js';
-import { handleNextPage } from './helpers.js';
+import { handleNextPage, parseNumber } from './helpers.js';
 
 export const router = createCheerioRouter();
 
@@ -22,8 +22,20 @@ router.addHandler<UserData>(Labels.GLO, async (ctx) => {
         const downloadUrl = downloadUrlHref && new URL(downloadUrlHref, origin).toString();
         const magnetUrl = $(rowEl).find('td:nth-child(4) a').attr('href');
         const size = $(rowEl).find('td:nth-child(5)').text().trim();
-        const seeds = $(rowEl).find('td:nth-child(6)').text().trim();
-        const leeches = $(rowEl).find('td:nth-child(7)').text().trim();
+
+        // TODO: this part of code is same in all handlers, put it in one place
+        const seedsText = $(rowEl).find('td:nth-child(6)').text();
+        const leechesText = $(rowEl).find('td:nth-child(7)').text();
+        const seeds = parseNumber(seedsText);
+        if (seeds === null) {
+            log.warning(`Invalid seeds value "${seedsText}" of torrent ${title}`);
+            continue;
+        }
+        const leeches = parseNumber(leechesText);
+        if (leeches === null) {
+            log.warning(`Invalid leeches value "${seedsText}" of torrent ${title}`);
+            continue;
+        }
         const uploader = $(rowEl).find('td:nth-child(8) a font').text().trim();
 
         torrents.push({
@@ -77,8 +89,18 @@ router.addHandler<UserData>(Labels.TPB, async (ctx) => {
                 } else {
                     log.warning(`Unable to extract size and uploader from description: ${descStr}`);
                 }
-                const seeds = $(rowEl).find('td:nth-child(3)').text().trim();
-                const leeches = $(rowEl).find('td:nth-child(4)').text().trim();
+                const seedsText = $(rowEl).find('td:nth-child(3)').text();
+                const leechesText = $(rowEl).find('td:nth-child(4)').text();
+                const seeds = parseNumber(seedsText);
+                if (seeds === null) {
+                    log.warning(`Invalid seeds value "${seedsText}" of torrent ${title}`);
+                    return null;
+                }
+                const leeches = parseNumber(leechesText);
+                if (leeches === null) {
+                    log.warning(`Invalid leeches value "${seedsText}" of torrent ${title}`);
+                    return null;
+                }
                 return {
                     title,
                     webUrl,
@@ -101,8 +123,18 @@ router.addHandler<UserData>(Labels.TPB, async (ctx) => {
                 const webUrl = titleEl.attr('href');
                 const magnetUrl = $(rowEl).find('td:nth-child(4) a[href^="magnet"]').attr('href');
                 const size = $(rowEl).find('td:nth-child(5)').text().trim();
-                const seeds = $(rowEl).find('td:nth-child(6)').text().trim();
-                const leeches = $(rowEl).find('td:nth-child(7)').text().trim();
+                const seedsText = $(rowEl).find('td:nth-child(6)').text();
+                const leechesText = $(rowEl).find('td:nth-child(7)').text();
+                const seeds = parseNumber(seedsText);
+                if (seeds === null) {
+                    log.warning(`Invalid seeds value "${seedsText}" of torrent ${title}`);
+                    return null;
+                }
+                const leeches = parseNumber(leechesText);
+                if (leeches === null) {
+                    log.warning(`Invalid leeches value "${seedsText}" of torrent ${title}`);
+                    return null;
+                }
                 const uploader = $(rowEl).find('td:nth-child(8)').text().trim();
                 return {
                     title,
@@ -154,8 +186,18 @@ router.addHandler<UserData>(Labels.NYAA, async (ctx) => {
         const downloadUrl = downloadUrlHref && new URL(downloadUrlHref, origin).toString();
         const magnetUrl = $(rowEl).find('td:nth-child(3) a[href^="magnet:"]').attr('href');
         const size = $(rowEl).find('td:nth-child(4)').text().trim();
-        const seeds = $(rowEl).find('td:nth-child(6)').text().trim();
-        const leeches = $(rowEl).find('td:nth-child(7)').text().trim();
+        const seedsText = $(rowEl).find('td:nth-child(6)').text();
+        const leechesText = $(rowEl).find('td:nth-child(7)').text();
+        const seeds = parseNumber(seedsText);
+        if (seeds === null) {
+            log.warning(`Invalid seeds value "${seedsText}" of torrent ${title}`);
+            continue;
+        }
+        const leeches = parseNumber(leechesText);
+        if (leeches === null) {
+            log.warning(`Invalid leeches value "${seedsText}" of torrent ${title}`);
+            continue;
+        }
         torrents.push({
             title,
             webUrl,
@@ -195,8 +237,18 @@ router.addHandler<UserData>(Labels.LIME, async (ctx) => {
         const webUrl = webUrlHref && new URL(webUrlHref, origin).toString();
         const downloadUrl = $(titleCellEls[0]).attr('href');
         const size = $(rowEl).find('td:nth-child(3)').text().trim();
-        const seeds = $(rowEl).find('td:nth-child(4)').text().trim();
-        const leeches = $(rowEl).find('td:nth-child(5)').text().trim();
+        const seedsText = $(rowEl).find('td:nth-child(4)').text();
+        const leechesText = $(rowEl).find('td:nth-child(5)').text();
+        const seeds = parseNumber(seedsText);
+        if (seeds === null) {
+            log.warning(`Invalid seeds value "${seedsText}" of torrent ${title}`);
+            continue;
+        }
+        const leeches = parseNumber(leechesText);
+        if (leeches === null) {
+            log.warning(`Invalid leeches value "${seedsText}" of torrent ${title}`);
+            continue;
+        }
         torrents.push({
             title,
             webUrl,
@@ -251,8 +303,18 @@ router.addHandler<UserData>(Labels.SOLID_TORRENTS, async (ctx) => {
         const webUrl = webUrlHref && new URL(webUrlHref, origin).toString();
         const statsEl = $(rowEl).find('.stats');
         const size = $(statsEl).find('div:nth-child(2)').text().trim();
-        const seeds = $(statsEl).find('div:nth-child(3)').text().trim();
-        const leeches = $(statsEl).find('div:nth-child(4)').text().trim();
+        const seedsText = $(statsEl).find('div:nth-child(3)').text();
+        const seeds = parseNumber(seedsText);
+        if (seeds === null) {
+            log.warning(`Invalid seeds value "${seedsText}" of torrent ${title}`);
+            continue;
+        }
+        const leechesText = $(statsEl).find('div:nth-child(4)').text();
+        const leeches = parseNumber(leechesText);
+        if (leeches === null) {
+            log.warning(`Invalid leeches value "${seedsText}" of torrent ${title}`);
+            continue;
+        }
         const linksEl = $(rowEl).find('.links');
         const magnetUrl = $(linksEl).find('a[href^="magnet:"]').attr('href');
         const downloadUrl = $(linksEl).find('a.dl-torrent').attr('href');

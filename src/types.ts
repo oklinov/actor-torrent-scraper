@@ -36,8 +36,8 @@ export type TorrentItem = {
     size?: string
     uploader?: string
     age?: string
-    seeds: string
-    leeches: string
+    seeds: number
+    leeches: number
     magnetUrl?: string
     webUrl?: string
     downloadUrl?: string

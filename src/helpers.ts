@@ -84,3 +84,8 @@ export const handleNextPage = async ({ ctx, hasNextPage }: NextPageHandlerOption
     log.info(`Adding next page (${nextPage}: ${nextRequest.url}) to queue`);
     await crawler.addRequests([nextRequest]);
 };
+
+export const parseNumber = (text: string): number | null => {
+    const seeds = text.trim().replace(/[\s,]/g, '');
+    return seeds.match(/^\d+$/) ? parseInt(seeds, 10) : null;
+};
